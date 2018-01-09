@@ -16,7 +16,7 @@ DELETE -> /v1/users/{id}
 
 To test the rest endpoints you can use POSTMAN or a restclient and type the following:
 
-GET http://localhost/v1/users
+GET http://somedomain.com/v1/users
 
 5. Please specify your database connection settings in the config.php file.
 
