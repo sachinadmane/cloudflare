@@ -1,15 +1,22 @@
 jQuery(document).ready(function ($) {
-    $.get('/users/index.php', function (data) {
+    $.get('/v1/users', function (data) {
 
-        var response = jQuery.parseJSON(data);
+        var response=data;
+        //hide table if no users in the table
+        if (response.data.length === 0) {
+            $("#DyanmicTable").hide();
+            return false;
+        }
+
         var html = "";
-        for (var i = 0; i < response.length; i++) {
-            var certs = response[i].certs ? response[i].certs.split(',') : [];
+        //loop through our results and append to the table
+        for (var i = 0; i < response.data.length; i++) {
+            var certs = response.data[i].certs ? response.data[i].certs.split(',') : [];
 
-            html += "<tr id='" + response[i].id + "'>";
-            html += "<td>" + response[i].first_name + "</td>";
-            html += "<td>" + response[i].last_name + "</td>";
-            html += "<td>" + response[i].email + "</td>";
+            html += "<tr id='" + response.data[i].id + "'>";
+            html += "<td>" + response.data[i].first_name + "</td>";
+            html += "<td>" + response.data[i].last_name + "</td>";
+            html += "<td>" + response.data[i].email + "</td>";
             html += "<td>";
             for (var y = 0; y < certs.length; y++) {
                 var active = certs[y].split('_')[1];
@@ -30,15 +37,10 @@ jQuery(document).ready(function ($) {
         }
 
         $("#DyanmicTable tbody").append(html);
-
-        var tbody = $("#DyanmicTable tbody");
-
-        if (tbody.children().length == 0) {
-            $("#DyanmicTable").hide();
-        }
     });
 
 
+    //adds a new customer in the db via ajax
     $(document).on("submit", "form.well", function (e) {
 
         e.preventDefault();
@@ -55,17 +57,14 @@ jQuery(document).ready(function ($) {
             return false;
         }
 
-        $.post("/users/add.php", {
+        $.post("/v1/users",JSON.stringify({
             firstname: firstname,
             lastname: lastname,
             password: password,
-            email: email,
-            submit: 'submit'
-        }, function (data) {
+            email: email
+        }), function (data) {
 
-
-            var response = $.parseJSON(data);
-
+            var response=$.parseJSON(data);
             var id = response.id;
 
             $("#DyanmicTable").show();
@@ -79,23 +78,25 @@ jQuery(document).ready(function ($) {
         $(document).find(':input:not([type=submit])').val('');
     });
 
+    //deletes a customer through ajax
     $(document).on("click", "#bElim", function () {
 
         var id = $(this).closest("tr").attr("id");
 
         var tbody = $("#DyanmicTable tbody");
 
+        var self=$(this);
+
         if (confirm("Are you sure you want to delete this customer?")) {
 
             $.ajax({
 
                 type: 'DELETE',
-                url: '/users' + '?' + $.param({"id": id}),
+                url: '/v1/users/' +id ,
                 success: function (result) {
-                    var response = $.parseJSON(result);
-
-                    if (response.status == true) {
-                        $("#" + id).remove();
+                    var response=$.parseJSON(result);
+                    if (response.status===200) {
+                       self.closest("tr").remove();
                     }
                 }
             });
@@ -107,6 +108,7 @@ jQuery(document).ready(function ($) {
 
     });
 
+    //toggles between the value of activate and deactivate for a certificate
     $(document).on('click', '.toggle_certificate', function () {
         var row_id = $(this).closest('tr').attr("id");
         var cert_id = $(this).attr("id");
@@ -137,7 +139,7 @@ jQuery(document).ready(function ($) {
         return false;
     });
 
-
+//creates a new certificate on button click
     $(document).on('click', '#bCert', function () {
 
         var cid = $(this).closest("tr").attr("id");
@@ -161,7 +163,5 @@ jQuery(document).ready(function ($) {
         });
 
     });
-
-
 });
 
