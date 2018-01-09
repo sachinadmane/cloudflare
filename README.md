@@ -20,5 +20,31 @@ GET http://somedomain.com/v1/users
 
 5. Please specify your database connection settings in the config.php file.
 
+//Schema definition
+
+CREATE TABLE IF NOT EXISTS `customers` (
+  `id` mediumint(11) NOT NULL AUTO_INCREMENT,
+  `encrypted_id` varchar(255) DEFAULT NULL,
+  `email` varchar(255) DEFAULT NULL,
+  `password` varchar(255) DEFAULT NULL,
+  `first_name` varchar(255) DEFAULT NULL,
+  `last_name` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=63 ;
+
+
+CREATE TABLE IF NOT EXISTS `customer_certificate` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `customer_id` int(11) DEFAULT NULL,
+  `private_key` text,
+  `body` text NOT NULL,
+  `active` tinyint(1) NOT NULL DEFAULT '1',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `customer_id` (`customer_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=30 ;
+
+
+
 
 
